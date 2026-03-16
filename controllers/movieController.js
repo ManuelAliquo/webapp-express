@@ -1,5 +1,5 @@
 // db connection
-const connection = require("../db/connection.js");
+const connection = require("../db/connection");
 
 // index
 function index(req, res) {
