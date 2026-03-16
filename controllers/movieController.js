@@ -1,16 +1,15 @@
 // db connection
 const connection = require("../db/connection");
 
+// failed query handler import
+const failedQueryHandler = require("../middlewares/failedQueryHandler");
+
 // index
 function index(req, res) {
   const moviesSQL = "SELECT * FROM movies;";
 
   connection.query(moviesSQL, (err, results) => {
-    if (err)
-      return res.status(500).json({
-        success: false,
-        message: "Database query failed",
-      });
+    if (err) return failedQueryHandler(err, res);
 
     res.status(200).json({
       success: true,
@@ -26,11 +25,7 @@ function show(req, res) {
   const moviesSQL = "SELECT * FROM movies WHERE id = ?";
 
   connection.query(moviesSQL, [id], (err, movieResults) => {
-    if (err)
-      return res.status(500).json({
-        success: false,
-        result: "Database query failed",
-      });
+    if (err) return failedQueryHandler(err, res);
 
     const [movie] = movieResults;
 
@@ -43,11 +38,7 @@ function show(req, res) {
     const reviewsSQL = "SELECT * FROM reviews WHERE movie_id = ?";
 
     connection.query(reviewsSQL, [id], (err, reviewResults) => {
-      if (err)
-        return res.status(500).json({
-          success: false,
-          result: "Database query failed",
-        });
+      if (err) return failedQueryHandler(err, res);
 
       movie.reviews = reviewResults;
 
