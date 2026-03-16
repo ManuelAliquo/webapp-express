@@ -13,9 +13,19 @@ const connection = require("./db/connection.js");
 
 // routes
 app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "WIP",
+  const moviesSQL = "SELECT * FROM movies_db.movies;";
+
+  connection.query(moviesSQL, (err, results) => {
+    if (err)
+      return res.status(500).json({
+        success: false,
+        message: "Database query failed",
+      });
+
+    res.status(200).json({
+      success: true,
+      result: results,
+    });
   });
 });
 
