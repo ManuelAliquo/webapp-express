@@ -35,18 +35,32 @@ app.get("/", (req, res) => {
 app.get("/:id", (req, res) => {
   const { id } = req.params;
 
-  const moviesSQL = "SELECT * FROM movies WHERE id = ?;";
+  const moviesSQL = "SELECT * FROM movies WHERE id = ?";
 
-  connection.query(moviesSQL, [id], (err, results) => {
+  connection.query(moviesSQL, [id], (err, movieResults) => {
     if (err)
       return res.status(500).json({
         success: false,
-        message: "Database query failed",
+        result: "Database query failed",
       });
 
-    res.status(200).json({
-      success: true,
-      result: results,
+    const [movie] = movieResults;
+
+    const reviewsSQL = "SELECT * FROM reviews WHERE movie_id = ?";
+
+    connection.query(reviewsSQL, [id], (err, reviewResults) => {
+      if (err)
+        return res.status(500).json({
+          success: false,
+          result: "Database query failed",
+        });
+
+      movie.reviews = reviewResults;
+
+      res.status(200).json({
+        success: true,
+        result: movie,
+      });
     });
   });
 });
