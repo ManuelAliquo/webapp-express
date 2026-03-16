@@ -2,18 +2,25 @@
 const connection = require("../db/connection");
 
 // failed query handler import
-const failedQueryHandler = require("../middlewares/failedQueryHandler");
+const failedQueryHandler = require("../utils/failedQueryHandler");
+
+// movie vover builder import
+const movieCoverPathBuilder = require("../utils/movieCoverPathBuilder");
 
 // index
 function index(req, res) {
   const moviesSQL = "SELECT * FROM movies;";
 
-  connection.query(moviesSQL, (err, results) => {
+  connection.query(moviesSQL, (err, movieResults) => {
     if (err) return failedQueryHandler(err, res);
+
+    const movies = movieResults.map((movie) => {
+      return { ...movie, image: movieCoverPathBuilder(movie.image) };
+    });
 
     res.status(200).json({
       success: true,
-      result: results,
+      result: movies,
     });
   });
 }
@@ -27,9 +34,11 @@ function show(req, res) {
   connection.query(moviesSQL, [id], (err, movieResults) => {
     if (err) return failedQueryHandler(err, res);
 
-    const [movie] = movieResults;
+    const [movies] = movieResults.map((movie) => {
+      return { ...movie, image: movieCoverPathBuilder(movie.image) };
+    });
 
-    if (!movie)
+    if (!movies)
       return res.status(404).json({
         success: false,
         result: "Resource not found",
@@ -40,11 +49,11 @@ function show(req, res) {
     connection.query(reviewsSQL, [id], (err, reviewResults) => {
       if (err) return failedQueryHandler(err, res);
 
-      movie.reviews = reviewResults;
+      movies.reviews = reviewResults;
 
       res.status(200).json({
         success: true,
-        result: movie,
+        result: movies,
       });
     });
   });
