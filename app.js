@@ -5,8 +5,11 @@ const moviesRouter = require("./routers/moviesRouter");
 // error handlers import
 const notFoundHandler = require("./middlewares/notFoundHandler");
 const errorsHandler = require("./middlewares/errorsHandler");
+// req logger import
+const requestLogger = require("./middlewares/requestLogger");
 
 // middlewares
+app.use(requestLogger);
 app.use(express.json());
 app.use(express.static("public"));
 
