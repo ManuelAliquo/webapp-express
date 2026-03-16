@@ -10,13 +10,18 @@
   ],
   "repository": {
     "type": "git",
-    "url": "placeholder"
+    "url": "https://github.com/ManuelAliquo/webapp-express"
   },
   "license": "ISC",
   "author": "ManuelAliquo",
   "type": "commonjs",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "watch": "node --watch app.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
   }
 }
