@@ -1,12 +1,11 @@
 const express = require("express");
 const app = express();
+// router import
+const moviesRouter = require("./routers/moviesRouter.js");
 
 // middlewares
 app.use(express.json());
 app.use(express.static("public"));
-
-// router
-const moviesRouter = require("./routers/moviesRouter.js");
 
 app.use("/movies", moviesRouter);
 
