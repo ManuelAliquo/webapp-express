@@ -11,7 +11,7 @@ app.use(express.static("public"));
 // db connection
 const connection = require("./db/connection.js");
 
-//* routes
+//* ROUTES
 
 // index
 app.get("/", (req, res) => {
@@ -45,6 +45,12 @@ app.get("/:id", (req, res) => {
       });
 
     const [movie] = movieResults;
+
+    if (!movie)
+      return res.status(404).json({
+        success: false,
+        result: "Resource not found",
+      });
 
     const reviewsSQL = "SELECT * FROM reviews WHERE movie_id = ?";
 
