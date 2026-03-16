@@ -2,8 +2,9 @@ const express = require("express");
 const app = express();
 // router import
 const moviesRouter = require("./routers/moviesRouter");
-// notFound import
+// error handlers import
 const notFoundHandler = require("./middlewares/notFoundHandler");
+const errorsHandler = require("./middlewares/errorsHandler");
 
 // middlewares
 app.use(express.json());
@@ -14,6 +15,7 @@ app.use("/movies", moviesRouter);
 
 // error handlers
 app.use(notFoundHandler);
+app.use(errorsHandler);
 
 app.listen(process.env.APP_PORT, () =>
   console.log(`Server listening on ${process.env.APP_URL}:${process.env.APP_PORT}`),
