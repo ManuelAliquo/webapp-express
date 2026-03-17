@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const cors = require("cors");
 // router import
 const moviesRouter = require("./routers/moviesRouter");
 // error handlers import
@@ -9,6 +10,7 @@ const errorsHandler = require("./middlewares/errorsHandler");
 const requestLogger = require("./middlewares/requestLogger");
 
 // middlewares
+app.use(cors({ origin: process.env.FRONTEND_URL }));
 app.use(requestLogger);
 app.use(express.json());
 app.use(express.static("public"));
