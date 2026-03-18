@@ -9,7 +9,19 @@ const movieCoverPathBuilder = require("../utils/movieCoverPathBuilder");
 
 // index
 function index(req, res) {
-  const moviesSQL = "SELECT * FROM movies;";
+  const moviesSQL = `
+  SELECT
+    movies.id,
+    movies.title,
+    movies.director,
+    movies.genre,
+    movies.release_year,
+    movies.abstract,
+    movies.image,
+    AVG(reviews.vote) AS average_vote
+  FROM movies
+  INNER JOIN reviews ON reviews.movie_id = movies.id
+  GROUP BY movies.id;`;
 
   connection.query(moviesSQL, (err, movieResults) => {
     if (err) return failedQueryHandler(err, res);
@@ -29,7 +41,17 @@ function index(req, res) {
 function show(req, res) {
   const { id } = req.params;
 
-  const moviesSQL = "SELECT * FROM movies WHERE id = ?";
+  const moviesSQL = `
+  SELECT
+    id,
+    title,
+    director,
+    genre,
+    release_year,
+    abstract,
+    image
+  FROM movies
+  WHERE id = ?;`;
 
   connection.query(moviesSQL, [id], (err, movieResults) => {
     if (err) return failedQueryHandler(err, res);
@@ -44,7 +66,16 @@ function show(req, res) {
         result: "Resource not found",
       });
 
-    const reviewsSQL = "SELECT * FROM reviews WHERE movie_id = ?";
+    const reviewsSQL = `
+    SELECT 
+      id,
+      name AS username,
+      vote,
+      text,
+      DATE(created_at) AS creation_date,
+	    DATE(updated_at) AS update_date
+    FROM reviews
+    WHERE movie_id = ?;`;
 
     connection.query(reviewsSQL, [id], (err, reviewResults) => {
       if (err) return failedQueryHandler(err, res);
