@@ -1,10 +1,8 @@
 // db connection
 const connection = require("../db/connection");
 
-// failed query handler import
+// utils imports
 const failedQueryHandler = require("../utils/failedQueryHandler");
-
-// movie vover builder import
 const movieCoverPathBuilder = require("../utils/movieCoverPathBuilder");
 
 // index
@@ -95,11 +93,29 @@ function storeReview(req, res) {
   const { id } = req.params;
   const { name, vote, text } = req.body;
 
-  const storeReviewSQL = `
-   INSERT INTO reviews (movie_id, name, vote, text)
-   VALUES (?, ?, ?, ?);`;
+  const voteNumber = parseInt(vote);
 
-  connection.query(storeReviewSQL, [id, name, vote, text], (err, result) => {
+  if (!name || !voteNumber || !text) {
+    res.status(400).json({
+      success: false,
+      result: "fields not valid",
+    });
+    return;
+  }
+
+  if (name.trim() === "" || text.trim() === "") {
+    res.status(400).json({
+      success: false,
+      result: "fields not valid",
+    });
+    return;
+  }
+
+  const storeReviewSQL = `
+    INSERT INTO reviews (movie_id, name, vote, text)
+    VALUES (?, ?, ?, ?);`;
+
+  connection.query(storeReviewSQL, [id, name, voteNumber, text], (err, result) => {
     if (err) return failedQueryHandler(err, res);
 
     const showReviewSQL = `SELECT * FROM reviews WHERE id = ?`;
