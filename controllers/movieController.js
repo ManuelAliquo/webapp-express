@@ -23,10 +23,10 @@ function index(req, res) {
   INNER JOIN reviews ON reviews.movie_id = movies.id
   GROUP BY movies.id;`;
 
-  connection.query(moviesSQL, (err, movieResults) => {
+  connection.query(moviesSQL, (err, result) => {
     if (err) return failedQueryHandler(err, res);
 
-    const movies = movieResults.map((movie) => {
+    const movies = result.map((movie) => {
       return { ...movie, image: movieCoverPathBuilder(movie.image) };
     });
 
@@ -53,10 +53,10 @@ function show(req, res) {
   FROM movies
   WHERE id = ?;`;
 
-  connection.query(moviesSQL, [id], (err, movieResults) => {
+  connection.query(moviesSQL, [id], (err, result) => {
     if (err) return failedQueryHandler(err, res);
 
-    const [movies] = movieResults.map((movie) => {
+    const [movies] = result.map((movie) => {
       return { ...movie, image: movieCoverPathBuilder(movie.image) };
     });
 
@@ -77,10 +77,10 @@ function show(req, res) {
     FROM reviews
     WHERE movie_id = ?;`;
 
-    connection.query(reviewsSQL, [id], (err, reviewResults) => {
+    connection.query(reviewsSQL, [id], (err, result) => {
       if (err) return failedQueryHandler(err, res);
 
-      movies.reviews = reviewResults;
+      movies.reviews = result;
 
       res.status(200).json({
         success: true,
@@ -90,4 +90,28 @@ function show(req, res) {
   });
 }
 
-module.exports = { index, show };
+// review store
+function storeReview(req, res) {
+  const { id } = req.params;
+  const { name, vote, text } = req.body;
+
+  const storeReviewSQL = `
+   INSERT INTO reviews (movie_id, name, vote, text)
+   VALUES (?, ?, ?, ?);`;
+
+  connection.query(storeReviewSQL, [id, name, vote, text], (err, result) => {
+    if (err) return failedQueryHandler(err, res);
+
+    const showReviewSQL = `SELECT * FROM reviews WHERE id = ?`;
+    connection.query(showReviewSQL, [result.insertId], (err, result) => {
+      if (err) return failedQueryHandler(err, res);
+
+      res.status(201).json({
+        success: true,
+        result: result[0],
+      });
+    });
+  });
+}
+
+module.exports = { index, show, storeReview };
