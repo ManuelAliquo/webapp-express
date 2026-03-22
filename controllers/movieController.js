@@ -16,9 +16,9 @@ function index(req, res) {
     movies.release_year,
     movies.abstract,
     movies.image,
-    AVG(reviews.vote) AS average_vote
+    IFNULL(AVG(reviews.vote), 0) AS average_vote
   FROM movies
-  INNER JOIN reviews ON reviews.movie_id = movies.id
+  LEFT JOIN reviews ON reviews.movie_id = movies.id
   GROUP BY movies.id;`;
 
   connection.query(moviesSQL, (err, result) => {
@@ -95,10 +95,11 @@ function storeReview(req, res) {
 
   const voteNumber = parseInt(vote);
 
+  // data validation
   if (!name || !voteNumber || !text) {
     res.status(400).json({
       success: false,
-      result: "fields not valid",
+      result: "Fields not valid",
     });
     return;
   }
@@ -106,7 +107,15 @@ function storeReview(req, res) {
   if (name.trim() === "" || text.trim() === "") {
     res.status(400).json({
       success: false,
-      result: "fields not valid",
+      result: "Fields not valid",
+    });
+    return;
+  }
+
+  if (voteNumber < 1 || voteNumber > 5) {
+    res.status(400).json({
+      success: false,
+      result: "Fields not valid",
     });
     return;
   }
